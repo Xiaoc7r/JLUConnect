@@ -88,8 +88,10 @@ public class NetView {
  }return result;}
  public string Key="",Label="无可用校园网络", Proxy="", Detail="";
  public bool Trusted;
- public static bool Listed(string items,string value) {return items.Split(new char[]{',',';','\r','\n'},StringSplitOptions.RemoveEmptyEntries).Any(s=>s.Trim().Equals(value,StringComparison.OrdinalIgnoreCase));}
- public static bool IsTrustedNetwork(Settings cfg,bool wireless,bool ethernet,string ssid,string[] gateways){return gateways.Any(g=>Listed(cfg.Gateways,g))&&(wireless?Listed(cfg.WifiNames,ssid):ethernet);}
+ public static bool Listed(string items,string value) {return Listed(items,value,StringComparison.OrdinalIgnoreCase);}
+ public static bool Listed(string items,string value,StringComparison comparison) {return !String.IsNullOrWhiteSpace(items)&&!String.IsNullOrWhiteSpace(value)&&items.Split(new char[]{',',';','\r','\n'},StringSplitOptions.RemoveEmptyEntries).Any(s=>s.Trim().Equals(value,comparison));}
+ // SSIDs are case-sensitive: a similarly named network must not inherit enrollment.
+ public static bool IsTrustedNetwork(Settings cfg,bool wireless,bool ethernet,string ssid,string[] gateways){return cfg!=null&&gateways!=null&&gateways.Any(g=>Listed(cfg.Gateways,g))&&(wireless?Listed(cfg.WifiNames,ssid,StringComparison.Ordinal):ethernet);}
  public static NetView Read(Settings cfg) {
   var n=new NetView();var keys=new System.Collections.Generic.List<string>();var details=new System.Collections.Generic.List<string>();
   foreach(var ni in NetworkInterface.GetAllNetworkInterfaces()) {
